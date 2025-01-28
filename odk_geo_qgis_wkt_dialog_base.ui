@@ -1,34 +1,178 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>ODKGeo_QgisWktDialogBase</class>
- <widget class="QDialog" name="ODKGeo_QgisWktDialogBase" >
-  <property name="geometry" >
+ <widget class="QDialog" name="ODKGeo_QgisWktDialogBase">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>600</width>
+    <height>550</height>
    </rect>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>ODK Geo to QGIS WKT</string>
   </property>
-  <widget class="QDialogButtonBox" name="button_box" >
-   <property name="geometry" >
+
+  <!-- File selection widget -->
+  <widget class="QgsFileWidget" name="xlsFileWidget">
+   <property name="geometry">
     <rect>
-     <x>30</x>
-     <y>240</y>
+     <x>10</x>
+     <y>30</y>
+     <width>580</width>
+     <height>27</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>Select the .xls file</string>
+   </property>
+  </widget>
+
+  <!-- Sheet selection dropdown -->
+  <widget class="QLabel" name="labelSheet">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>80</y>
+     <width>150</width>
+     <height>27</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Select Sheet:</string>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="sheetDropdown">
+   <property name="geometry">
+    <rect>
+     <x>170</x>
+     <y>80</y>
+     <width>420</width>
+     <height>27</height>
+    </rect>
+   </property>
+  </widget>
+
+  <!-- Point column dropdown -->
+  <widget class="QLabel" name="labelPoint">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>130</y>
+     <width>150</width>
+     <height>27</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Select ODK GeoPoint Column:</string>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="pointColumnDropdown">
+   <property name="geometry">
+    <rect>
+     <x>170</x>
+     <y>130</y>
+     <width>420</width>
+     <height>27</height>
+    </rect>
+   </property>
+  </widget>
+
+  <!-- Trace column dropdown -->
+  <widget class="QLabel" name="labelTrace">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>180</y>
+     <width>150</width>
+     <height>27</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Select ODK GeoTrace Column:</string>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="traceColumnDropdown">
+   <property name="geometry">
+    <rect>
+     <x>170</x>
+     <y>180</y>
+     <width>420</width>
+     <height>27</height>
+    </rect>
+   </property>
+  </widget>
+
+  <!-- Polygon column dropdown -->
+  <widget class="QLabel" name="labelPolygon">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>230</y>
+     <width>150</width>
+     <height>27</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Select ODK GeoShape Column:</string>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="polygonColumnDropdown">
+   <property name="geometry">
+    <rect>
+     <x>170</x>
+     <y>230</y>
+     <width>420</width>
+     <height>27</height>
+    </rect>
+   </property>
+  </widget>
+
+  <!-- Convert Button -->
+  <widget class="QPushButton" name="convertButton">
+   <property name="geometry">
+    <rect>
+     <x>240</x>
+     <y>280</y>
+     <width>120</width>
+     <height>40</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Convert</string>
+   </property>
+   <property name="toolTip">
+    <string>Click to convert coordinates to WKT</string>
+   </property>
+  </widget>
+
+  <!-- Dialog button box -->
+  <widget class="QDialogButtonBox" name="button_box">
+   <property name="geometry">
+    <rect>
+     <x>190</x>
+     <y>500</y>
      <width>341</width>
      <height>32</height>
     </rect>
    </property>
-   <property name="orientation" >
+   <property name="orientation">
     <enum>Qt::Horizontal</enum>
    </property>
-   <property name="standardButtons" >
+   <property name="standardButtons">
     <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
    </property>
   </widget>
+
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QgsFileWidget</class>
+   <extends>QWidget</extends>
+   <header>qgsfilewidget.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>
@@ -36,32 +180,12 @@
    <signal>accepted()</signal>
    <receiver>ODKGeo_QgisWktDialogBase</receiver>
    <slot>accept()</slot>
-   <hints>
-    <hint type="source_label" >
-     <x>248</x>
-     <y>254</y>
-    </hint>
-    <hint type="destination_label" >
-     <x>157</x>
-     <y>274</y>
-    </hint>
-   </hints>
   </connection>
   <connection>
    <sender>button_box</sender>
    <signal>rejected()</signal>
    <receiver>ODKGeo_QgisWktDialogBase</receiver>
    <slot>reject()</slot>
-   <hints>
-    <hint type="source_label" >
-     <x>316</x>
-     <y>260</y>
-    </hint>
-    <hint type="destination_label" >
-     <x>286</x>
-     <y>274</y>
-    </hint>
-   </hints>
   </connection>
  </connections>
 </ui>
