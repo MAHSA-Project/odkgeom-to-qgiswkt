@@ -36,6 +36,10 @@ class ODKGeo_QgisWktDialog(QtWidgets.QDialog, FORM_CLASS):
         self.xlsFileWidget.fileChanged.connect(self.load_sheets)
         self.sheetDropdown.currentIndexChanged.connect(self.load_columns)
 
+        # Add autoSelectCheckbox functionality if it exists in the UI (no additional features added for backward compatibility)
+        if hasattr(self, 'autoSelectCheckbox'):
+            self.autoSelectCheckbox.stateChanged.connect(self.load_columns)
+
     def load_sheets(self):
         """Load sheets from the selected .xlsx file into the sheet dropdown and auto-load first sheet's columns."""
         file_path = self.xlsFileWidget.filePath()
@@ -58,7 +62,7 @@ class ODKGeo_QgisWktDialog(QtWidgets.QDialog, FORM_CLASS):
             QMessageBox.critical(self, "Error", f"Failed to read .xlsx file: {e}")
 
     def load_columns(self):
-        """Loads column headers from the selected sheet into dropdowns."""
+        """Loads column headers from the selected sheet into dropdowns and auto-selects specific columns if enabled."""
         selected_sheet = self.sheetDropdown.currentText()
         if not selected_sheet or not hasattr(self, 'workbook'):
             return
@@ -76,6 +80,39 @@ class ODKGeo_QgisWktDialog(QtWidgets.QDialog, FORM_CLASS):
             self.pointColumnDropdown.addItems(headers)
             self.traceColumnDropdown.addItems(headers)
             self.polygonColumnDropdown.addItems(headers)
+
+            # If auto-select is enabled, check for missing columns
+            if hasattr(self, 'autoSelectCheckbox') and self.autoSelectCheckbox.isChecked():
+                odk_geopoint_col = "Single point site coordinates (latitude and longitude)."
+                odk_geotrace_col = "Record surface feature as line."
+                odk_geoshape_col = "Record surface feature as polygon."
+                
+                missing_columns = []
+                if odk_geopoint_col in headers:
+                    self.pointColumnDropdown.setCurrentText(odk_geopoint_col)
+                else:
+                    missing_columns.append(odk_geopoint_col)
+
+                if odk_geotrace_col in headers:
+                    self.traceColumnDropdown.setCurrentText(odk_geotrace_col)
+                else:
+                    missing_columns.append(odk_geotrace_col)
+
+                if odk_geoshape_col in headers:
+                    self.polygonColumnDropdown.setCurrentText(odk_geoshape_col)
+                else:
+                    missing_columns.append(odk_geoshape_col)
+
+                # If any required column is missing, show an error
+                if missing_columns:
+                    QMessageBox.critical(
+                        self, 
+                        "Missing Required Columns", 
+                        f"The following required columns are missing:\n\n- " + "\n- ".join(missing_columns) + 
+                        "\n\nPlease select a sheet that contains these columns or disable auto-select."
+                    )
+                    return  # Stop execution
+
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Failed to load columns: {e}")
 
