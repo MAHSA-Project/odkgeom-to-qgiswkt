@@ -4,11 +4,13 @@
  ODKGeo_QgisWktDialog
                                  A QGIS plugin
  This plugin converts ODK geo coordinate values to QGIS (flipped) WKT values.
- ***************************************************************************
+ It processes points, traces (lines), and polygons.
+ ***************************************************************************/
 """
 
 import os
-from openpyxl import load_workbook  # Ensure this import is here for reading/writing Excel files
+import gc
+from openpyxl import load_workbook
 from qgis.PyQt import uic
 from qgis.PyQt import QtWidgets
 from qgis.PyQt.QtWidgets import QMessageBox
@@ -20,7 +22,7 @@ FORM_CLASS, _ = uic.loadUiType(os.path.join(
 
 class ODKGeo_QgisWktDialog(QtWidgets.QDialog, FORM_CLASS):
     def __init__(self, parent=None):
-        """Constructor."""
+        """Constructor - Initializes the UI and connects signals to slots."""
         super(ODKGeo_QgisWktDialog, self).__init__(parent)
         self.setupUi(self)
 
@@ -30,19 +32,19 @@ class ODKGeo_QgisWktDialog(QtWidgets.QDialog, FORM_CLASS):
         else:
             raise AttributeError("convertButton is missing from the UI file. Check your .ui design.")
 
-        # Connect signals to slots for other UI components
+        # Connect file and dropdown widgets to corresponding functions
         self.xlsFileWidget.fileChanged.connect(self.load_sheets)
         self.sheetDropdown.currentIndexChanged.connect(self.load_columns)
 
     def load_sheets(self):
-        """Load sheets from the selected .xlsx file into the sheet dropdown."""
+        """Loads available sheets from the selected .xlsx file into the dropdown."""
         file_path = self.xlsFileWidget.filePath()
         if not file_path.endswith(".xlsx"):
             QMessageBox.warning(self, "Invalid File", "Please select a valid .xlsx file.")
             return
 
         try:
-            workbook = load_workbook(file_path)  # Open in normal mode, not read-only
+            workbook = load_workbook(file_path, read_only=False)  # Open in normal mode for writing
             self.sheetDropdown.clear()
             self.sheetDropdown.addItems(workbook.sheetnames)
             self.workbook = workbook
@@ -50,17 +52,17 @@ class ODKGeo_QgisWktDialog(QtWidgets.QDialog, FORM_CLASS):
             QMessageBox.critical(self, "Error", f"Failed to read .xlsx file: {e}")
 
     def load_columns(self):
-        """Load column headers from the selected sheet into dropdowns."""
+        """Loads column headers from the selected sheet into dropdowns."""
         selected_sheet = self.sheetDropdown.currentText()
         if not selected_sheet or not hasattr(self, 'workbook'):
             return
 
         try:
-            # Get the selected sheet and read the first row for headers
+            # Get the headers from the first row
             sheet = self.workbook[selected_sheet]
             headers = [cell.value for cell in next(sheet.iter_rows(min_row=1, max_row=1)) if cell.value]
 
-            # Populate dropdowns
+            # Populate dropdowns with column names
             self.pointColumnDropdown.clear()
             self.traceColumnDropdown.clear()
             self.polygonColumnDropdown.clear()
@@ -72,61 +74,72 @@ class ODKGeo_QgisWktDialog(QtWidgets.QDialog, FORM_CLASS):
             QMessageBox.critical(self, "Error", f"Failed to load columns: {e}")
 
     def convert_coordinates(self):
-        """Process the coordinates, flip and create valid WKT records for polygons only."""
+        """Converts selected coordinate columns into WKT format (Point, LineString, Polygon)."""
         selected_sheet = self.sheetDropdown.currentText()
+        point_column = self.pointColumnDropdown.currentText()
+        trace_column = self.traceColumnDropdown.currentText()
         polygon_column = self.polygonColumnDropdown.currentText()
 
         if not selected_sheet or not hasattr(self, 'workbook'):
             QMessageBox.warning(self, "Error", "No sheet selected or workbook not loaded.")
             return
 
+        file_path = self.xlsFileWidget.filePath()
         try:
-            # Open the workbook in regular (writeable) mode instead of read-only mode
-            file_path = self.xlsFileWidget.filePath()
-            workbook = load_workbook(file_path)  # Now open in normal mode (not read-only)
-            sheet = workbook[selected_sheet]  # Access the sheet directly by name
+            # Open workbook for editing
+            workbook = load_workbook(file_path)
+            sheet = workbook[selected_sheet]
 
-            # Extract headers and determine the new column index
+            # Get existing headers and determine new column positions
             headers = [cell.value for cell in next(sheet.iter_rows(min_row=1, max_row=1))]
-            if None in headers:
-                raise ValueError("Empty column headers detected. Please ensure all columns have names.")
-            
-            new_column_index = len(headers) + 1
+            existing_columns = {header: idx + 1 for idx, header in enumerate(headers) if header}
 
-            # Add a new header for the WKT column
-            sheet.cell(row=1, column=new_column_index).value = "QGIS Geoshape WKT"
+            # Determine column positions for new WKT values
+            point_col_idx = existing_columns.get("QGIS Point WKT", len(headers) + 1)
+            trace_col_idx = existing_columns.get("QGIS Trace WKT", len(headers) + (2 if point_column else 1))
+            polygon_col_idx = existing_columns.get("QGIS Polygon WKT", len(headers) + 
+                                                   (3 if point_column and trace_column else 
+                                                    2 if point_column or trace_column else 1))
 
-            # Process each row to create WKT values for polygons only
+            # Add WKT column headers if they don’t exist
+            if "QGIS Point WKT" not in existing_columns and point_column:
+                sheet.cell(row=1, column=point_col_idx, value="QGIS Point WKT")
+            if "QGIS Trace WKT" not in existing_columns and trace_column:
+                sheet.cell(row=1, column=trace_col_idx, value="QGIS Trace WKT")
+            if "QGIS Polygon WKT" not in existing_columns and polygon_column:
+                sheet.cell(row=1, column=polygon_col_idx, value="QGIS Polygon WKT")
+
+            # Iterate over rows and convert coordinates
             for row_index, row in enumerate(sheet.iter_rows(min_row=2, max_row=sheet.max_row), start=2):
-                # Get the cell value for the polygon column
-                polygon = row[headers.index(polygon_column)].value if polygon_column in headers else None
+                if point_column and row[headers.index(point_column)].value:
+                    point = self.flip_coordinates(row[headers.index(point_column)].value)
+                    sheet.cell(row=row_index, column=point_col_idx, value=Point(point).wkt)
 
-                wkt_value = None
-                if polygon:
-                    # Split the coordinates by semicolon to get individual points
-                    coords = polygon.split(';')
-                    
-                    # Flip each coordinate and store them in a list
-                    flipped_polygon = [self.flip_coordinates(coord.strip()) for coord in coords if coord.strip()]
-                    
-                    # Create the Polygon WKT from the flipped coordinates
-                    wkt_value = Polygon(flipped_polygon).wkt
+                if trace_column and row[headers.index(trace_column)].value:
+                    trace = [self.flip_coordinates(coord) for coord in row[headers.index(trace_column)].value.split(';')]
+                    sheet.cell(row=row_index, column=trace_col_idx, value=LineString(trace).wkt)
 
-                # Explicitly write the WKT value to the new column
-                target_cell = sheet.cell(row=row_index, column=new_column_index)
-                target_cell.value = wkt_value
+                if polygon_column and row[headers.index(polygon_column)].value:
+                    polygon = [self.flip_coordinates(coord) for coord in row[headers.index(polygon_column)].value.split(';')]
+                    sheet.cell(row=row_index, column=polygon_col_idx, value=Polygon(polygon).wkt)
 
-            # Save the modified workbook
-            workbook.save(file_path)  # Save the workbook with the new WKT values
-            QMessageBox.information(self, "Success", "Polygons converted and saved successfully!")
+            # Save changes and clean up
+            workbook.save(file_path)
+            workbook.close()
+            del workbook
+            gc.collect()  # Free memory
+
+            QMessageBox.information(self, "Success", "Coordinates converted and saved successfully!")
 
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Failed to convert coordinates: {e}")
 
     def flip_coordinates(self, coordinate):
-        """Flip the coordinates (longitude, latitude)."""
-        coords = coordinate.split(' ')  # ODK coordinates use space to separate values
+        """
+        Flips ODK coordinates from (latitude, longitude) to (longitude, latitude).
+        Expects coordinates in "lat lon" format.
+        """
+        coords = coordinate.split()
         if len(coords) >= 2:
-            # Only use the first two values (longitude, latitude)
-            return float(coords[1].strip()), float(coords[0].strip())
+            return float(coords[1]), float(coords[0])  # Swap lat and lon
         raise ValueError(f"Invalid coordinate format: {coordinate}")
