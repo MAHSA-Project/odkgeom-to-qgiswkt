@@ -37,7 +37,7 @@ class ODKGeo_QgisWktDialog(QtWidgets.QDialog, FORM_CLASS):
         self.sheetDropdown.currentIndexChanged.connect(self.load_columns)
 
     def load_sheets(self):
-        """Loads available sheets from the selected .xlsx file into the dropdown."""
+        """Load sheets from the selected .xlsx file into the sheet dropdown and auto-load first sheet's columns."""
         file_path = self.xlsFileWidget.filePath()
         if not file_path.endswith(".xlsx"):
             QMessageBox.warning(self, "Invalid File", "Please select a valid .xlsx file.")
@@ -48,6 +48,12 @@ class ODKGeo_QgisWktDialog(QtWidgets.QDialog, FORM_CLASS):
             self.sheetDropdown.clear()
             self.sheetDropdown.addItems(workbook.sheetnames)
             self.workbook = workbook
+
+            # Auto-select the first sheet and load columns immediately
+            if workbook.sheetnames:
+                self.sheetDropdown.setCurrentIndex(0)  # Select first sheet
+                self.load_columns()  # Populate columns automatically
+
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Failed to read .xlsx file: {e}")
 
