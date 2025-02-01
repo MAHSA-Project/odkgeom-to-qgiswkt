@@ -94,6 +94,8 @@
     </property>
   </widget>
 
+  
+
   <!-- Trace column dropdown -->
   <widget class="QLabel" name="labelTrace">
    <property name="geometry">
@@ -143,6 +145,66 @@
     </rect>
    </property>
   </widget>
+
+
+
+<!-- Trace result column name input -->
+<widget class="QLabel" name="labelTraceResult">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>310</y>
+     <width>150</width>
+     <height>27</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Trace Result Column Name:</string>
+   </property>
+</widget>
+<widget class="QLineEdit" name="traceResultColumnName">
+   <property name="geometry">
+    <rect>
+     <x>170</x>
+     <y>310</y>
+     <width>420</width>
+     <height>27</height>
+    </rect>
+   </property>
+   <property name="placeholderText">
+    <string>Enter custom column name</string>
+   </property>
+</widget>
+
+
+<!-- Trace result column name input -->
+<widget class="QLabel" name="polyTraceResult">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>340</y>
+     <width>150</width>
+     <height>27</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Poly Result Column Name:</string>
+   </property>
+</widget>
+<widget class="QLineEdit" name="polyResultColumnName">
+   <property name="geometry">
+    <rect>
+     <x>170</x>
+     <y>340</y>
+     <width>420</width>
+     <height>27</height>
+    </rect>
+   </property>
+   <property name="placeholderText">
+    <string>Enter custom column name</string>
+   </property>
+</widget>
+
 
   <!-- Convert Button -->
   <widget class="QPushButton" name="convertButton">
