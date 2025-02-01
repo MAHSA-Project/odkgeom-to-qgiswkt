@@ -73,25 +73,25 @@ class ODKGeo_QgisWktDialog(QtWidgets.QDialog, FORM_CLASS):
             headers = [cell.value for cell in next(sheet.iter_rows(min_row=1, max_row=1)) if cell.value]
 
             # Populate dropdowns with column names
-            self.pointColumnDropdown.clear()
+          #  self.pointColumnDropdown.clear()
             self.traceColumnDropdown.clear()
             self.polygonColumnDropdown.clear()
 
-            self.pointColumnDropdown.addItems(headers)
+           # self.pointColumnDropdown.addItems(headers)
             self.traceColumnDropdown.addItems(headers)
             self.polygonColumnDropdown.addItems(headers)
 
             # If auto-select is enabled, check for missing columns
             if hasattr(self, 'autoSelectCheckbox') and self.autoSelectCheckbox.isChecked():
-                odk_geopoint_col = "Single point site coordinates (latitude and longitude)."
+            #    odk_geopoint_col = "Single point site coordinates (latitude and longitude)."
                 odk_geotrace_col = "Record surface feature as line."
                 odk_geoshape_col = "Record surface feature as polygon."
                 
                 missing_columns = []
-                if odk_geopoint_col in headers:
-                    self.pointColumnDropdown.setCurrentText(odk_geopoint_col)
-                else:
-                    missing_columns.append(odk_geopoint_col)
+                # if odk_geopoint_col in headers:
+                #     self.pointColumnDropdown.setCurrentText(odk_geopoint_col)
+                # else:
+                #     missing_columns.append(odk_geopoint_col)
 
                 if odk_geotrace_col in headers:
                     self.traceColumnDropdown.setCurrentText(odk_geotrace_col)
@@ -119,7 +119,7 @@ class ODKGeo_QgisWktDialog(QtWidgets.QDialog, FORM_CLASS):
     def convert_coordinates(self):
         """Converts selected coordinate columns into WKT format (Point, LineString, Polygon)."""
         selected_sheet = self.sheetDropdown.currentText()
-        point_column = self.pointColumnDropdown.currentText()
+#        point_column = self.pointColumnDropdown.currentText()
         trace_column = self.traceColumnDropdown.currentText()
         polygon_column = self.polygonColumnDropdown.currentText()
 
