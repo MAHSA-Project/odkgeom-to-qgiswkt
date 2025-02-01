@@ -123,6 +123,16 @@ class ODKGeo_QgisWktDialog(QtWidgets.QDialog, FORM_CLASS):
         trace_column = self.traceColumnDropdown.currentText()
         polygon_column = self.polygonColumnDropdown.currentText()
 
+        # Get user-defined trace result column name
+        user_trace_column_name = self.traceResultColumnName.text().strip()
+        if not user_trace_column_name:  # If empty, use default
+            user_trace_column_name = "QGIS Trace WKT"
+
+        # Get user-defined trace result column name
+        user_poly_column_name = self.polyResultColumnName.text().strip()
+        if not user_poly_column_name:  # If empty, use default
+            user_poly_column_name = "QGIS Poly WKT"
+
         if not selected_sheet or not hasattr(self, 'workbook'):
             QMessageBox.warning(self, "Error", "No sheet selected or workbook not loaded.")
             return
@@ -133,38 +143,36 @@ class ODKGeo_QgisWktDialog(QtWidgets.QDialog, FORM_CLASS):
             workbook = load_workbook(file_path)
             sheet = workbook[selected_sheet]
 
-            # Get existing headers and determine new column positions
+            # Get existing headers and determine column positions
             headers = [cell.value for cell in next(sheet.iter_rows(min_row=1, max_row=1))]
             existing_columns = {header: idx + 1 for idx, header in enumerate(headers) if header}
 
-            # Determine column positions for new WKT values
-            point_col_idx = existing_columns.get("QGIS Point WKT", len(headers) + 1)
-            trace_col_idx = existing_columns.get("QGIS Trace WKT", len(headers) + (2 if point_column else 1))
-            polygon_col_idx = existing_columns.get("QGIS Polygon WKT", len(headers) + 
-                                                   (3 if point_column and trace_column else 
-                                                    2 if point_column or trace_column else 1))
+            # Determine column index for user-defined trace column
+            trace_col_idx = existing_columns.get(user_trace_column_name, len(headers) + 1)
 
-            # Add WKT column headers if they don’t exist
-            if "QGIS Point WKT" not in existing_columns and point_column:
-                sheet.cell(row=1, column=point_col_idx, value="QGIS Point WKT")
-            if "QGIS Trace WKT" not in existing_columns and trace_column:
-                sheet.cell(row=1, column=trace_col_idx, value="QGIS Trace WKT")
-            if "QGIS Polygon WKT" not in existing_columns and polygon_column:
-                sheet.cell(row=1, column=polygon_col_idx, value="QGIS Polygon WKT")
+            
+            # Determine column index for user-defined trace column
+            poly_col_idx = existing_columns.get(user_poly_column_name, len(headers) + 2)
 
-            # Iterate over rows and convert coordinates
+            # Add WKT column headers if it doesn’t exist
+            if user_trace_column_name not in existing_columns:
+                sheet.cell(row=1, column=trace_col_idx, value=user_trace_column_name)
+
+            # Add WKT column headers if it doesn’t exist
+            if user_poly_column_name not in existing_columns:
+                sheet.cell(row=1, column=poly_col_idx, value=user_poly_column_name)
+
+            # Iterate over rows and convert trace coordinates
             for row_index, row in enumerate(sheet.iter_rows(min_row=2, max_row=sheet.max_row), start=2):
-                if point_column and row[headers.index(point_column)].value:
-                    point = self.flip_coordinates(row[headers.index(point_column)].value)
-                    sheet.cell(row=row_index, column=point_col_idx, value=Point(point).wkt)
-
                 if trace_column and row[headers.index(trace_column)].value:
                     trace = [self.flip_coordinates(coord) for coord in row[headers.index(trace_column)].value.split(';')]
                     sheet.cell(row=row_index, column=trace_col_idx, value=LineString(trace).wkt)
 
+            # Iterate over rows and convert trace coordinates
+            for row_index, row in enumerate(sheet.iter_rows(min_row=2, max_row=sheet.max_row), start=2):
                 if polygon_column and row[headers.index(polygon_column)].value:
-                    polygon = [self.flip_coordinates(coord) for coord in row[headers.index(polygon_column)].value.split(';')]
-                    sheet.cell(row=row_index, column=polygon_col_idx, value=Polygon(polygon).wkt)
+                    poly = [self.flip_coordinates(coord) for coord in row[headers.index(polygon_column)].value.split(';')]
+                    sheet.cell(row=row_index, column=poly_col_idx, value=Polygon(poly).wkt)
 
             # Save changes and clean up
             workbook.save(file_path)
@@ -172,10 +180,11 @@ class ODKGeo_QgisWktDialog(QtWidgets.QDialog, FORM_CLASS):
             del workbook
             gc.collect()  # Free memory
 
-            QMessageBox.information(self, "Success", "Coordinates converted and saved successfully!")
+            QMessageBox.information(self, "Success", f"Coordinates converted and saved to column: {user_trace_column_name}!")
 
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Failed to convert coordinates: {e}")
+
 
     def flip_coordinates(self, coordinate):
         """
