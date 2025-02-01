@@ -7,242 +7,113 @@
     <x>0</x>
     <y>0</y>
     <width>600</width>
-    <height>550</height>
+    <height>200</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>ODK Geo to QGIS WKT</string>
   </property>
-
-  <!-- File selection widget -->
-  <widget class="QgsFileWidget" name="xlsFileWidget">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>30</y>
-     <width>580</width>
-     <height>27</height>
-    </rect>
-   </property>
-   <property name="toolTip">
-    <string>Select the .xls file</string>
-   </property>
-  </widget>
-
-  <!-- Sheet selection dropdown -->
-  <widget class="QLabel" name="labelSheet">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>80</y>
-     <width>150</width>
-     <height>27</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Select Sheet:</string>
-   </property>
-  </widget>
-  <widget class="QComboBox" name="sheetDropdown">
-   <property name="geometry">
-    <rect>
-     <x>170</x>
-     <y>80</y>
-     <width>420</width>
-     <height>27</height>
-    </rect>
-   </property>
-  </widget>
-
-  <!-- Point column dropdown -->
-  <widget class="QLabel" name="labelPoint">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>130</y>
-     <width>150</width>
-     <height>27</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Select ODK GeoPoint Column:</string>
-   </property>
-  </widget>
-  <widget class="QComboBox" name="pointColumnDropdown">
-   <property name="geometry">
-    <rect>
-     <x>170</x>
-     <y>130</y>
-     <width>420</width>
-     <height>27</height>
-    </rect>
-   </property>
-  </widget>
-
-  <!-- Auto-select checkbox -->
-  <widget class="QCheckBox" name="autoSelectCheckbox">
-    <property name="geometry">
-        <rect>
-            <x>10</x>
-            <y>160</y>
-            <width>250</width>
-            <height>27</height>
-        </rect>
-    </property>
-    <property name="text">
-        <string>Auto-select ODK GeoPoint Column</string>
-    </property>
-  </widget>
-
   
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0" colspan="2">
+    <widget class="QLabel" name="labelFile">
+     <property name="text">
+      <string>Select ODK Data File (.xlsx):</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="QgsFileWidget" name="xlsFileWidget">
+     <property name="toolTip">
+      <string>Select the .xls file</string>
+     </property>
+    </widget>
+   </item>
 
-  <!-- Trace column dropdown -->
-  <widget class="QLabel" name="labelTrace">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>210</y>
-     <width>150</width>
-     <height>27</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Select ODK GeoTrace Column:</string>
-   </property>
-  </widget>
-  <widget class="QComboBox" name="traceColumnDropdown">
-   <property name="geometry">
-    <rect>
-     <x>170</x>
-     <y>210</y>
-     <width>420</width>
-     <height>27</height>
-    </rect>
-   </property>
-  </widget>
+   <item row="1" column="0">
+    <widget class="QLabel" name="labelSheet">
+     <property name="text">
+      <string>Select Sheet:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QComboBox" name="sheetDropdown"/>
+   </item>
 
-  <!-- Polygon column dropdown -->
-  <widget class="QLabel" name="labelPolygon">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>250</y>
-     <width>150</width>
-     <height>27</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Select ODK GeoShape Column:</string>
-   </property>
-  </widget>
-  <widget class="QComboBox" name="polygonColumnDropdown">
-   <property name="geometry">
-    <rect>
-     <x>170</x>
-     <y>250</y>
-     <width>420</width>
-     <height>27</height>
-    </rect>
-   </property>
-  </widget>
+   <item row="2" column="0" colspan="2">
+    <widget class="QCheckBox" name="autoSelectCheckbox">
+     <property name="text">
+      <string>Check to auto-select MAHSA ODK Geometry Columns</string>
+     </property>
+    </widget>
+   </item>
 
+   <item row="3" column="0">
+    <widget class="QLabel" name="labelTrace">
+     <property name="text">
+      <string>Select ODK line geometry data column:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="QComboBox" name="traceColumnDropdown"/>
+   </item>
 
+   <item row="4" column="0">
+    <widget class="QLabel" name="labelTraceResult">
+     <property name="text">
+      <string>Enter name for converted line geometry column:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1">
+    <widget class="QLineEdit" name="traceResultColumnName">
+     <property name="placeholderText">
+      <string>Enter custom column name</string>
+     </property>
+    </widget>
+   </item>
 
-<!-- Trace result column name input -->
-<widget class="QLabel" name="labelTraceResult">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>310</y>
-     <width>150</width>
-     <height>27</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Trace Result Column Name:</string>
-   </property>
-</widget>
-<widget class="QLineEdit" name="traceResultColumnName">
-   <property name="geometry">
-    <rect>
-     <x>170</x>
-     <y>310</y>
-     <width>420</width>
-     <height>27</height>
-    </rect>
-   </property>
-   <property name="placeholderText">
-    <string>Enter custom column name</string>
-   </property>
-</widget>
+   <item row="5" column="0">
+    <widget class="QLabel" name="labelPolygon">
+     <property name="text">
+      <string>Select ODK polygon geometry data column:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="1">
+    <widget class="QComboBox" name="polygonColumnDropdown"/>
+   </item>
 
+   <item row="6" column="0">
+    <widget class="QLabel" name="polyTraceResult">
+     <property name="text">
+      <string>Enter name for converted polygon geometry column:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="1">
+    <widget class="QLineEdit" name="polyResultColumnName">
+     <property name="placeholderText">
+      <string>Enter custom column name</string>
+     </property>
+    </widget>
+   </item>
 
-<!-- Trace result column name input -->
-<widget class="QLabel" name="polyTraceResult">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>340</y>
-     <width>150</width>
-     <height>27</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Poly Result Column Name:</string>
-   </property>
-</widget>
-<widget class="QLineEdit" name="polyResultColumnName">
-   <property name="geometry">
-    <rect>
-     <x>170</x>
-     <y>340</y>
-     <width>420</width>
-     <height>27</height>
-    </rect>
-   </property>
-   <property name="placeholderText">
-    <string>Enter custom column name</string>
-   </property>
-</widget>
-
-
-  <!-- Convert Button -->
-  <widget class="QPushButton" name="convertButton">
-   <property name="geometry">
-    <rect>
-     <x>240</x>
-     <y>300</y>
-     <width>120</width>
-     <height>40</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Convert</string>
-   </property>
-   <property name="toolTip">
-    <string>Click to convert coordinates to WKT</string>
-   </property>
-  </widget>
-
-  <!-- Dialog button box -->
-  <widget class="QDialogButtonBox" name="button_box">
-   <property name="geometry">
-    <rect>
-     <x>190</x>
-     <y>500</y>
-     <width>341</width>
-     <height>32</height>
-    </rect>
-   </property>
-   <property name="orientation">
-    <enum>Qt::Horizontal</enum>
-   </property>
-   <property name="standardButtons">
-    <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-   </property>
-  </widget>
-
+   <item row="7" column="1" alignment="Qt::AlignRight">
+    <widget class="QPushButton" name="convertButton">
+     <property name="toolTip">
+      <string>Click to convert coordinates to WKT</string>
+     </property>
+     <property name="text">
+      <string>Convert</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
  </widget>
+
  <customwidgets>
   <customwidget>
    <class>QgsFileWidget</class>
@@ -251,18 +122,5 @@
   </customwidget>
  </customwidgets>
  <resources/>
- <connections>
-  <connection>
-   <sender>button_box</sender>
-   <signal>accepted()</signal>
-   <receiver>ODKGeo_QgisWktDialogBase</receiver>
-   <slot>accept()</slot>
-  </connection>
-  <connection>
-   <sender>button_box</sender>
-   <signal>rejected()</signal>
-   <receiver>ODKGeo_QgisWktDialogBase</receiver>
-   <slot>reject()</slot>
-  </connection>
- </connections>
+ <connections/>
 </ui>
