@@ -7,13 +7,13 @@
     <x>0</x>
     <y>0</y>
     <width>600</width>
-    <height>250</height>
+    <height>230</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>ODK Geo to QGIS WKT</string>
   </property>
-
+  
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0" colspan="2">
     <widget class="QLabel" name="labelFile">
@@ -23,7 +23,11 @@
     </widget>
    </item>
    <item row="0" column="1">
-    <widget class="QgsFileWidget" name="xlsFileWidget"/>
+    <widget class="QgsFileWidget" name="xlsFileWidget">
+     <property name="toolTip">
+      <string>Select the .xls file</string>
+     </property>
+    </widget>
    </item>
 
    <item row="1" column="0">
@@ -37,37 +41,7 @@
     <widget class="QComboBox" name="sheetDropdown"/>
    </item>
 
-   <item row="2" column="0">
-    <widget class="QLabel" name="labelGeometryType">
-     <property name="text">
-      <string>Select Geometry Type:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="1">
-    <widget class="QComboBox" name="geometryTypeDropdown">
-     <property name="toolTip">
-      <string>Choose between Line, Polygon, or Both</string>
-     </property>
-     <item>
-      <property name="text">
-       <string>Both</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Line Only</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Polygon Only</string>
-      </property>
-     </item>
-    </widget>
-   </item>
-
-   <item row="3" column="0" colspan="2">
+   <item row="2" column="0" colspan="2">
     <widget class="QCheckBox" name="autoSelectCheckbox">
      <property name="text">
       <string>Check to auto-select MAHSA ODK Geometry Columns</string>
@@ -75,6 +49,7 @@
     </widget>
    </item>
 
+   
    <item row="4" column="0">
     <widget class="QLabel" name="labelTrace">
      <property name="text">
@@ -101,25 +76,25 @@
     </widget>
    </item>
 
-   <item row="6" column="0">
+   <item row="7" column="0">
     <widget class="QLabel" name="labelPolygon">
      <property name="text">
       <string>Select ODK polygon geometry data column:</string>
      </property>
     </widget>
    </item>
-   <item row="6" column="1">
+   <item row="7" column="1">
     <widget class="QComboBox" name="polygonColumnDropdown"/>
    </item>
 
-   <item row="7" column="0">
-    <widget class="QLabel" name="labelPolyResult">
+   <item row="8" column="0">
+    <widget class="QLabel" name="polyTraceResult">
      <property name="text">
       <string>Enter name for converted polygon geometry column:</string>
      </property>
     </widget>
    </item>
-   <item row="7" column="1">
+   <item row="8" column="1">
     <widget class="QLineEdit" name="polyResultColumnName">
      <property name="placeholderText">
       <string>Enter custom column name</string>
@@ -127,7 +102,7 @@
     </widget>
    </item>
 
-   <item row="8" column="1" alignment="Qt::AlignRight">
+   <item row="9" column="1" alignment="Qt::AlignRight">
     <widget class="QPushButton" name="convertButton">
      <property name="toolTip">
       <string>Click to convert coordinates to WKT</string>

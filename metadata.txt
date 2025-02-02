@@ -28,6 +28,7 @@ tags=python
 homepage=http://homepage
 category=Vector
 icon=icon.png
+
 # experimental flag
 experimental=True
 
